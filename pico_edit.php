@@ -10,6 +10,8 @@
 
 final class Pico_Edit extends AbstractPicoPlugin {
 
+  protected $config_pico_edit_no_password = false;
+  protected $config_editor = 'epiceditor';
   protected $enabled = true;
   protected $dependsOn = array();
 
@@ -35,15 +37,17 @@ final class Pico_Edit extends AbstractPicoPlugin {
       $twig_editor = new Twig_Environment( $loader, $twig_vars );
       // $twig_vars['autoescape'] = false;
       $twig_editor->addFilter('var_dump', new Twig_Filter_Function('var_dump'));
-      if( !$this->password ) {
+      if( $this->config_pico_edit_no_password === FALSE && !$this->password ) {
         $twig_vars['login_error'] = 'No password set for the backend.';
         echo $twig_editor->render( 'login.html', $twig_vars ); // Render login.html
         exit;
       }
 
+      
+
       if( !isset($_SESSION['backend_logged_in'] ) || !$_SESSION['backend_logged_in'] ) {
         if( isset($_POST['password'] ) ) {
-          if( sha1($_POST['password'] ) == $this->password ) {
+          if( $this->config_pico_edit_no_password === TRUE || sha1($_POST['password'] ) == $this->password ) {
             $_SESSION['backend_logged_in'] = true;
             $_SESSION['backend_config'] = $twig_vars['config'];
           }
@@ -58,6 +62,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
         }
       }
 
+      error_log(print_r($twig_vars,true)."\n",3,__DIR__.'/debug.log');
       echo $twig_editor->render('editor.html', $twig_vars); // Render editor.html
       exit; // Don't continue to render template
     }
@@ -67,6 +72,11 @@ final class Pico_Edit extends AbstractPicoPlugin {
     // Default options
     if( !isset( $config['pico_edit_404'] ) ) $config['pico_edit_404'] = TRUE;
     if( !isset( $config['pico_edit_options'] ) ) $config['pico_edit_options'] = TRUE;
+    if( !isset( $config['pico_edit_no_password'] ) ) $config['pico_edit_no_password'] = FALSE;
+    if( !isset( $config['pico_edit_editor'] ) ) $config['pico_edit_editor'] = 'epiceditor';
+    // Store lacally required settings
+    $this->config_pico_edit_no_password = $config['pico_edit_no_password'];
+    $this->config_editor = $config['editor'];
     // Parse extra options
     $conf = $this->getConfigDir() . '/options.conf';
     if( !file_exists( $conf ) ) touch( $conf );
