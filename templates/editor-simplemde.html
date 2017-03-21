@@ -11,6 +11,22 @@
   var simplemde = new SimpleMDE({
     element: document.getElementById("simplemde"),
     spellChecker: false,
+    shortcuts: {
+      "toggleBlockquote" : null,
+      "toggleBold" : null,
+      "cleanBlock" : null,
+      "toggleHeadingSmaller" : null,
+      "toggleItalic" : null,
+      "drawLink" : null,
+      "toggleUnorderedList" : null,
+      "togglePreview" : null,
+      "toggleCodeBlock" : null,
+      "drawImage" : null,
+      "toggleOrderedList" : null,
+      "toggleHeadingBigger" : null,
+      "toggleSideBySide" : null,
+      "toggleFullScreen" : null
+    }
   });
 
   // New
@@ -91,12 +107,12 @@
   .simplemde-container {
     padding: 1em 1em 1em calc(250px + 1em);
   }
-  
+
   .CodeMirror {
     min-height: 100px;
     height: calc(100vh - 170px);
   }
-  
+
   #main {
     z-index: 0;
   }

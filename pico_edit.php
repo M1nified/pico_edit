@@ -170,7 +170,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
     else $name = substr( $title, $pos + 1 );
     if( $pos > 0 )
     {
-      $dir = $this->slugify( substr( $title, 0, $pos ) );
+      $dir = $this->slugify( substr( $title, 0, $pos ), true );
       if( empty( $dir ) ) die( json_encode( array( 'error' => 'Error: Invalid folder' ) ) );
     }
     $file = $this->slugify( $name );
@@ -182,7 +182,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
       $path .= $dir;
       if( !is_dir( $path ) )
       {
-        if( !mkdir( $path ) ) die( json_encode( array( 'error' => 'Can\'t create folder' ) ) );
+        if( !mkdir( $path , 0777, true ) ) die( json_encode( array( 'error' => 'Can\'t create folder' ) ) );
       }
     }
     $path .= '/' . $file . $this->getConfig( 'content_ext' );
@@ -566,9 +566,12 @@ final class Pico_Edit extends AbstractPicoPlugin {
     
   }
 
-  private function slugify( $text ) {
+  private function slugify( $text , $keep_path = false) {
     // replace non letter or digits by -
-    $text = preg_replace( '~[^\\pL\d]+~u', '-', $text );
+    if(!$keep_path)
+    {
+      $text = preg_replace( '~[^\\pL\d]+~u', '-', $text );
+    }
     // trim
     $text = trim( $text, '-' );
     // transliterate
@@ -576,7 +579,13 @@ final class Pico_Edit extends AbstractPicoPlugin {
     // lowercase
     $text = strtolower( $text );
     // remove unwanted characters
-    $text = preg_replace( '~[^-\w]+~', '', $text );
+    if($keep_path)
+    {
+      $text = preg_replace( '~[^-\w\/]+~', '', $text );
+    }
+    else{
+      $text = preg_replace( '~[^-\w]+~', '', $text );
+    }
 
     return !empty( $text ) ? $text : FALSE;
   }
