@@ -1,9 +1,11 @@
 <div class="file-manager">
-  <div class="file-manager-inner">
-    <table>
-      <tbody class="files">
-      </tbody>
-    </table>
+  <div class="file-manager-inner-border">
+    <div class="file-manager-inner">
+      <table>
+        <tbody class="files">
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 <style>
@@ -23,13 +25,18 @@
     box-sizing: border-box;
     padding: 1em;
   }
-  .file-manager .file-manager-inner{
+  
+  .file-manager .file-manager-inner-border {
     margin: auto;
     max-width: 1000px;
-    max-height: calc( 100vh - 3em );
     background: #fff7f3;
     padding: 2em;
     box-sizing: border-box;
     border-radius: 3px;
+    overflow: hidden;
+  }
+  .file-manager .file-manager-inner{
+    overflow: auto;
+    max-height: calc( 100vh - 5em);
   }
 </style>
