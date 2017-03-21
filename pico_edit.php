@@ -35,7 +35,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
       $twig_editor = new Twig_Environment( $loader, $twig_vars );
       // $twig_vars['autoescape'] = false;
       $twig_editor->addFilter('var_dump', new Twig_Filter_Function('var_dump'));
-      if( $this->getConfig('config_pico_edit_no_password') === FALSE && !$this->password ) {
+      if( $this->getConfig('pico_edit_no_password') === FALSE && !$this->password ) {
         $twig_vars['login_error'] = 'No password set for the backend.';
         echo $twig_editor->render( 'login.html', $twig_vars ); // Render login.html
         exit;
@@ -45,7 +45,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
       if( !isset($_SESSION['backend_logged_in'] ) || !$_SESSION['backend_logged_in'] ) {
         if( isset($_POST['password'] ) ) {
-          if( $this->getConfig('config_pico_edit_no_password') === TRUE || sha1($_POST['password'] ) == $this->password ) {
+          if( $this->getConfig('pico_edit_no_password') === TRUE || sha1($_POST['password'] ) == $this->password ) {
             $_SESSION['backend_logged_in'] = true;
             $_SESSION['backend_config'] = $twig_vars['config'];
           }
