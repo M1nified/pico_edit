@@ -182,7 +182,7 @@ a:hover, a:active {
   float: left; 
   margin-top: 5px;
 }
-#sidebar .controls .new, .commitbutton, .savebutton, .pushpullbutton, .clearcachebutton { 
+#sidebar .controls .new, .commitbutton, .savebutton, .filebutton, .pushpullbutton, .clearcachebutton { 
   float: right; 
   margin-top: 5px;
 }
@@ -488,6 +488,9 @@ a:hover, a:active {
 }
 .icon-github:before {
   content: "\e913";
+}
+.icon-folder-open:before{
+  content: "\e930";
 }
 
 .marg-r5 {

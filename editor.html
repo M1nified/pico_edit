@@ -19,6 +19,7 @@
   <div id="sidebar">
     <div class="controls">
       <a href="#" class="savebutton btn icon-floppy-disk" title="Save"></a>
+      <a href="#" class="filebutton btn icon-folder-open marg-r5" title="Select file"></a>
       <a href="#" class="new btn icon-plus marg-r5" title="New"></a>
       <a href="#" class="pushpullbutton btn icon-download2 marg-r5" title="Git Push/Pull"></a>
       <a href="#" class="commitbutton btn icon-upload2 marg-r5" title="Git Commit"></a>
@@ -62,6 +63,40 @@
             setTimeout(function () {
               $('#saving').removeClass('active');
             }, 1000);
+          });
+        });
+
+        // btn - Select/Add file
+        $('.controls').on('click', '.filebutton', function (e) {
+          e.preventDefault();
+
+          // $('#saving').text('Clearing...').addClass('active');
+          $.post('{{ pico_edit_url }}/get_file_manager', {}, function (data) {
+            try{
+              data = JSON.parse(data);
+            }catch(ex){
+              console.error('[PICO_EDIT] Failed to parse file manager data.');
+              return;
+            }
+            // data : [ { path : string, type : file | dir, url : string } ]
+            console.log(data);
+
+            $(".file-manager .files").empty();
+            data.forEach((file)=>{
+              if(file.type === 'file'){
+                let content = '<tr><td>'+file.path+'</td><td><input type="text" readonly value="'+file.url+'"></td></tr>'
+                $(".file-manager .files").append(content);
+              }else{
+                '<td>'+file.path+'</td>'
+              }
+            })
+            $(".file-manager").addClass('show')
+
+
+            // $('#saving').text('Cache cleared');
+            // setTimeout(function () {
+            //   $('#saving').removeClass('active');
+            // }, 1000);
           });
         });
 
@@ -117,6 +152,9 @@
       });
     </script>
   </div>
+
+  {% include 'templates/file-manager.html' %}
+
 </body>
 
 </html>

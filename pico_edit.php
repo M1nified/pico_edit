@@ -10,8 +10,6 @@
 
 final class Pico_Edit extends AbstractPicoPlugin {
 
-  protected $config_pico_edit_no_password = false;
-  protected $config_editor = 'epiceditor';
   protected $enabled = true;
   protected $dependsOn = array();
 
@@ -37,7 +35,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
       $twig_editor = new Twig_Environment( $loader, $twig_vars );
       // $twig_vars['autoescape'] = false;
       $twig_editor->addFilter('var_dump', new Twig_Filter_Function('var_dump'));
-      if( $this->config_pico_edit_no_password === FALSE && !$this->password ) {
+      if( $this->getConfig('config_pico_edit_no_password') === FALSE && !$this->password ) {
         $twig_vars['login_error'] = 'No password set for the backend.';
         echo $twig_editor->render( 'login.html', $twig_vars ); // Render login.html
         exit;
@@ -47,7 +45,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
       if( !isset($_SESSION['backend_logged_in'] ) || !$_SESSION['backend_logged_in'] ) {
         if( isset($_POST['password'] ) ) {
-          if( $this->config_pico_edit_no_password === TRUE || sha1($_POST['password'] ) == $this->password ) {
+          if( $this->getConfig('config_pico_edit_no_password') === TRUE || sha1($_POST['password'] ) == $this->password ) {
             $_SESSION['backend_logged_in'] = true;
             $_SESSION['backend_config'] = $twig_vars['config'];
           }
@@ -74,9 +72,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
     if( !isset( $config['pico_edit_options'] ) ) $config['pico_edit_options'] = TRUE;
     if( !isset( $config['pico_edit_no_password'] ) ) $config['pico_edit_no_password'] = FALSE;
     if( !isset( $config['pico_edit_editor'] ) ) $config['pico_edit_editor'] = 'epiceditor';
-    // Store lacally required settings
-    $this->config_pico_edit_no_password = $config['pico_edit_no_password'];
-    $this->config_editor = $config['editor'];
+    if( !isset( $config['pico_edit_uploads_root'] ) ) $config['pico_edit_uploads_root'] = $this->getConfig('content_dir');
     // Parse extra options
     $conf = $this->getConfigDir() . '/options.conf';
     if( !file_exists( $conf ) ) touch( $conf );
@@ -139,15 +135,16 @@ final class Pico_Edit extends AbstractPicoPlugin {
     }
     // Are we looking for /pico_edit?
     if( $url == 'pico_edit' ) $this->is_admin = true;
+    if( $url == 'pico_edit/clearcache' ) $this->do_clearcache();
+    if( $url == 'pico_edit/commit' ) $this->do_commit();
+    if( $url == 'pico_edit/delete' ) $this->do_delete();
+    if( $url == 'pico_edit/get_file_manager' ) $this->do_get_file_manager();
+    if( $url == 'pico_edit/git' ) $this->do_git();
+    if( $url == 'pico_edit/logout' ) $this->is_logout = true;
     if( $url == 'pico_edit/new' ) $this->do_new();
     if( $url == 'pico_edit/open' ) $this->do_open();
-    if( $url == 'pico_edit/save' ) $this->do_save();
-    if( $url == 'pico_edit/delete' ) $this->do_delete();
-    if( $url == 'pico_edit/logout' ) $this->is_logout = true;
-    if( $url == 'pico_edit/commit' ) $this->do_commit();
-    if( $url == 'pico_edit/git' ) $this->do_git();
     if( $url == 'pico_edit/pushpull' ) $this->do_pushpull();
-    if( $url == 'pico_edit/clearcache' ) $this->do_clearcache();
+    if( $url == 'pico_edit/save' ) $this->do_save();
   }
 
   /**
@@ -546,6 +543,29 @@ final class Pico_Edit extends AbstractPicoPlugin {
     die($ret);
   }
 
+  private function do_get_file_manager()
+  {
+    if(!isset($_SESSION['backend_logged_in']) || !$_SESSION['backend_logged_in']) die(json_encode(array('error' => 'Error: Unathorized')));
+    
+    $uploads_root = realpath($this->getConfig( 'pico_edit_uploads_root' ));
+    if($uploads_root === false) die(json_encode(array('error' => 'Error: Wrong value of "pico_edit_uploads_root"')));
+
+    $files = $this->getDirContents($uploads_root);
+    sort($files);
+
+    foreach($files as &$file){
+      $type = is_file($file) ? 'file' : 'dir';
+      $file = array(
+        'url' => str_replace('//','/',str_replace('\\','/',$this->getConfig('base_url').str_replace(realpath($this->getRootDir()), '', $file))),
+        'path' => str_replace($uploads_root, '', $file),
+        'type' => $type
+      );
+    }
+
+    die(json_encode($files));
+    
+  }
+
   private function slugify( $text ) {
     // replace non letter or digits by -
     $text = preg_replace( '~[^\\pL\d]+~u', '-', $text );
@@ -560,6 +580,22 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
     return !empty( $text ) ? $text : FALSE;
   }
+
+  private function getDirContents($dir, &$results = array()){
+    $files = scandir($dir);
+
+    foreach($files as $key => $value){
+        $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
+        if(!is_dir($path)) {
+            $results[] = $path;
+        } else if($value != "." && $value != "..") {
+            $this->getDirContents($path, $results);
+            $results[] = $path;
+        }
+    }
+    return $results;
+}
+
 }
 
 // This is for Vim users - please don't delete it
