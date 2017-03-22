@@ -34,6 +34,9 @@ Options (Pico "config/config.php"):
 	$config['pico_edit_404'] = true;
 	$config['pico_edit_options'] = false;			// Disallow options editing
 	$config['pico_edit_default_author'] = 'Me';		// Default author for new pages
+	$config['pico_edit_no_password'] = false;		// Enable/Disable no password login
+	$config['pico_edit_editor'] = 'epiceditor';		// Editor
+	// $config['pico_edit_uploads_root'] = ;		// File manager root directory
 
 ![Screenshot](https://github.com/blocknotes/pico_edit/blob/master/screenshot.png)
 
