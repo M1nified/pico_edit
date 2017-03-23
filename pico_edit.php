@@ -60,7 +60,8 @@ final class Pico_Edit extends AbstractPicoPlugin {
         }
       }
 
-      $uploads_root = realpath($this->getConfig( 'pico_edit_uploads_root' ));
+      $uploads_root = realpath($_SERVER['DOCUMENT_ROOT'].$this->getConfig('base_dir').DIRECTORY_SEPARATOR.$this->getConfig( 'pico_edit_uploads_root' ));
+      // error_log(print_r($uploads_root,true)."\n",3,__DIR__.'\debug.log');
       if($uploads_root === false) error_log("Error: Wront `pico_edit_uploads_root` value.");
       else
       {
@@ -610,7 +611,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
     $result = [];
 
-    $uploads_root = realpath($this->getConfig( 'pico_edit_uploads_root' ));
+    $uploads_root = realpath($_SERVER['DOCUMENT_ROOT'].$this->getConfig('base_dir').DIRECTORY_SEPARATOR.$this->getConfig( 'pico_edit_uploads_root' ));
     if($uploads_root === false) die(json_encode(['error'=>'`pico_edit_uploads_root` does not exist']));
 
     foreach($_FILES['file']['error'] as $key => $error)
