@@ -19,11 +19,12 @@
   <div id="sidebar">
     <div class="controls">
       <a href="#" class="savebutton btn icon-floppy-disk" title="Save"></a>
-      <a href="#" class="filebutton btn icon-folder-open marg-r5" title="Select file"></a>
       <a href="#" class="new btn icon-plus marg-r5" title="New"></a>
       <a href="#" class="pushpullbutton btn icon-download2 marg-r5" title="Git Push/Pull"></a>
       <a href="#" class="commitbutton btn icon-upload2 marg-r5" title="Git Commit"></a>
       <a href="#" class="clearcachebutton btn icon-loop2 marg-r5" title="Clear Cache"></a>
+      <a href="#" class="pages-all-expand btn icon-enlarge2 marg-r5 pull-right marg-t5" title="Expand all"></a>
+      <a href="#" class="pages-all-collapse btn icon-shrink2 marg-r5 pull-right marg-t5" title="Collapse all"></a>
       <a href="{{ pico_edit_url }}/logout" class="logout btn icon-switch" title="Logout"></a>
     </div>
     <ul class="nav0">
@@ -33,11 +34,45 @@
       <li><a href="#" data-url="/404" class="post page-404"><span class="icon-file-empty marg-r5" aria-hidden="true"></span><i>404</i></a></li>
       {% endif %}
     </ul>
-    <ul class="nav">
+    <!-- <ul class="nav">
       {% for page in pages %}
       <li><a href="#" data-url="{{ page.id }}" class="post"><span class="icon-file-text2 marg-r5" aria-hidden="true"></span>/{{ page.id }}</a>
         <a href="{{ page.url }}" target="_blank" class="view" title="View"><span class="icon icon-eye" aria-hidden="true"></span></a>
         <a href="#" data-url="{{ page.id }}" class="delete" title="Delete"><span class="icon icon-bin" aria-hidden="true"></span></a></li>
+      {% endfor %}
+    </ul> -->
+    <ul class="nav nav-tree tree-root">
+      {% import "templates/tree.html" as tree %}
+
+      {{ tree.pages(pages_tree) }}
+
+    </ul>
+    <div class="attachments-filter">
+      <input type="search" placeholder="regex filter...">
+    </div>
+    <ul class="attachments-list">
+      {% for file in attachments if file.is_file %}
+        <li data-filter-by="{{file.path}}"><a href="{{file.url_md}}" title="{{file.path}}" target="_blank" data-atta-mime="{{file.mime}}" data-atta-name="{{file.path}}">
+          {% if file.mime == 'image' %}
+            <span class="icon-file-picture marg-r5" aria-hidden="true"></span>
+          {% elseif file.mime == 'text' %}
+            <span class="icon-file-text2 marg-r5" aria-hidden="true"></span>
+          {% elseif file.mime == 'word' %}
+            <span class="icon-file-word marg-r5" aria-hidden="true"></span>
+          {% elseif file.mime == 'excel' %}
+            <span class="icon-file-excel marg-r5" aria-hidden="true"></span>
+          {% elseif file.mime == 'archive' %}
+            <span class="icon-file-zip marg-r5" aria-hidden="true"></span>
+          {% else %}
+            <span class="icon-file-empty marg-r5" aria-hidden="true"></span>
+          {% endif %}
+
+          {{ file.file_name }}
+        </a>
+        <a href="{{ file.url_md }}" target="_blank" class="view" title="View"><span class="icon icon-eye" aria-hidden="true"></span></a>
+        <a href="#" data-atta-path="{{ file.path }}" class="delete" title="Delete"><span class="icon icon-bin" aria-hidden="true"></span></a></li>
+        
+        </li>
       {% endfor %}
     </ul>
   </div>
@@ -52,108 +87,8 @@
       {% include 'templates/editor-epiceditor.html' %}
     {% endif %}
 
-    <script>
-      $(function () {
-        // btn - Clear cache
-        $('.controls').on('click', '.clearcachebutton', function (e) {
-          e.preventDefault();
-          $('#saving').text('Clearing...').addClass('active');
-          $.post('{{ pico_edit_url }}/clearcache', {}, function (data) {
-            $('#saving').text('Cache cleared');
-            setTimeout(function () {
-              $('#saving').removeClass('active');
-            }, 1000);
-          });
-        });
-
-        // btn - Select/Add file
-        $('.controls').on('click', '.filebutton', function (e) {
-          e.preventDefault();
-
-          // $('#saving').text('Clearing...').addClass('active');
-          $.post('{{ pico_edit_url }}/get_file_manager', {}, function (data) {
-            try{
-              data = JSON.parse(data);
-            }catch(ex){
-              console.error('[PICO_EDIT] Failed to parse file manager data.');
-              return;
-            }
-            // data : [ { path : string, type : file | dir, url : string } ]
-            console.log(data);
-
-            $(".file-manager .files").empty();
-            data.forEach((file)=>{
-              if(file.type === 'file'){
-                let content = '<tr><td>'+file.path+'</td><td><input type="text" readonly value="'+file.url+'"></td></tr>'
-                $(".file-manager .files").append(content);
-              }else{
-                '<td>'+file.path+'</td>'
-              }
-            })
-            $(".file-manager").addClass('show')
-
-
-            // $('#saving').text('Cache cleared');
-            // setTimeout(function () {
-            //   $('#saving').removeClass('active');
-            // }, 1000);
-          });
-        });
-
-        // btn - Commit
-        $('.controls').on('click', '.commitbutton', function (e) {
-          e.preventDefault();
-          open_popup();
-          $('.popupcontent').load('{{ pico_edit_url }}/commit');
-        });
-
-        // btn - Push / Pull
-        $('.controls').on('click', '.pushpullbutton', function (e) {
-          e.preventDefault();
-          open_popup();
-          $('.popupcontent').load('{{ pico_edit_url }}/pushpull');
-        });
-
-        $('#popup').on('click', '.closegadget', function (e) {
-          e.preventDefault();
-          close_popup();
-        });
-
-        $('#cover').on('click', function (e) {
-          e.preventDefault();
-          close_popup();
-        });
-      });
-
-      function open_popup() {
-        $('#cover').show();
-        $('#popup').show();
-        $(document).on('keyup.popup', function (e) {
-          if (e.keyCode == 27) {
-            close_popup();
-          }
-        });
-      }
-
-      function close_popup() {
-        $('#cover').hide();
-        $('#popup').hide();
-        $('.popupcontent').empty();
-        $(document).unbind('keyup.popup');
-      }
-
-      $.getJSON("{{ pico_edit_url }}/git", function (data) {
-        if (data.have_repo) {
-          $('.commitbutton').show();
-        }
-        if (data.remotes.length) {
-          $('.pushpullbutton').show();
-        }
-      });
-    </script>
+    <script>{% include 'editor.js' %}</script>
   </div>
-
-  {% include 'templates/file-manager.html' %}
 
 </body>
 

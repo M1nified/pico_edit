@@ -1,0 +1,33 @@
+{% macro input(name, value, type, size) %}
+    <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ value|e }}" size="{{ size|default(20) }}" />
+{% endmacro %}
+
+{% macro wrapped_input(name, value, type, size) %}
+    {% import _self as forms %}
+
+    <div class="field">
+        {{ forms.input(name, value, type, size) }}
+    </div>
+{% endmacro %}
+
+{% macro pages(tree_node, tree_name) %}
+    {% import _self as tree %}
+
+    {% if tree_node.id %}
+        <li>
+            <a href="#" data-url="{{ tree_node.id }}" class="post"><span class="icon-file-text2 marg-r5" aria-hidden="true"></span>{% if tree_node.title %}{{ tree_node.title }}{% else %}{{ tree_node.id }}{% endif %}</a>
+            <a href="{{ tree_node.url }}" target="_blank" class="view" title="View"><span class="icon icon-eye" aria-hidden="true"></span></a>
+            <a href="#" data-url="{{ tree_node.id }}" class="delete" title="Delete"><span class="icon icon-bin" aria-hidden="true"></span></a>
+        </li>
+    {% else %}
+        {% if tree_name %}
+            <li><a href="#" class="directory"><span class="icon icon-folder marg-r5" aria-hidden="true"></span>{% if tree_node.index.title %}{{tree_node.index.title}} [/{{ tree_name }}]{% else %}{{ tree_name }}{% endif %}</a></li>
+        {% endif %}
+        <ul class="tree">
+            {% for child_name, child_node in tree_node %}
+                {{ tree.pages(child_node, child_name) }}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endmacro %}

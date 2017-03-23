@@ -197,6 +197,30 @@ a:hover, a:active {
   margin: 0 0 25px 0;
   padding: 0;
 }
+#sidebar .nav-tree ul {
+  padding-left: .5em;
+  transition: max-height 0.5s;
+  overflow: hidden;
+}
+#sidebar .nav-tree > ul {
+  padding-left: 0;
+}
+#sidebar .attachments-filter input {
+    display: block;
+    width: 100%;
+    border-radius: 0;
+    border: none;
+    height: initial;
+    padding: 5px;
+    margin: 0px;
+    border-top: solid 1px #c3c3c3;
+}
+#sidebar .attachments-list {
+  list-style: none;
+  margin: 0 0 25px 0;
+  padding: 0;
+  border-top: solid 1px #c3c3c3;
+}
 #sidebar .page-404 span {
   color: #c00;
 }
@@ -223,7 +247,10 @@ a:hover, a:active {
           transition: color 0.2s linear;
 }
 #sidebar li:hover a.post { padding-right: 55px; }
-#sidebar li a.open { color: #21272d; }
+#sidebar li a.open {
+  color: #21272d; 
+  font-weight: bold;
+}
 #sidebar li .view,
 #sidebar li .delete {
   position: absolute;
@@ -238,6 +265,7 @@ a:hover, a:active {
   padding: 0 5px;
   margin: 0;
   opacity: 0;
+  background: #f9fbfc;
 }
 #sidebar li .view { right: 25px; }
 #sidebar li .delete { padding-right: 5px; }
@@ -444,6 +472,18 @@ a:hover, a:active {
 .icon-file-text2:before {
   content: "\e902";
 }
+.icon-file-picture:before{
+  content: "\e927";
+}
+.icon-file-zip:before{
+  content: "\e92b";
+}
+.icon-file-word:before{
+  content: "\eae1";
+}
+.icon-file-excel:before{
+  content: "\eae2";
+}
 .icon-floppy-disk:before {
   content: "\e905";
 }
@@ -489,10 +529,40 @@ a:hover, a:active {
 .icon-github:before {
   content: "\e913";
 }
+.icon-folder:before{
+  content: "\e92f";
+}
 .icon-folder-open:before{
   content: "\e930";
+}
+.icon-share:before{
+  content: "\ea7d";
+}
+.icon-shrink2:before{
+  content: "\e98c";
 }
 
 .marg-r5 {
   margin-right: 5px;
+}
+.marg-t5{
+  margin-top: 5px;
+}
+
+.pull-right{
+  float: right;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #b3b3b3;
+}
+::-webkit-scrollbar-track {
+    border-left: solid 1px #dedede;
+}
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+.attachments-list{
+  min-height: 250px;
 }

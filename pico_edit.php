@@ -60,7 +60,41 @@ final class Pico_Edit extends AbstractPicoPlugin {
         }
       }
 
-      error_log(print_r($twig_vars,true)."\n",3,__DIR__.'/debug.log');
+      $uploads_root = realpath($this->getConfig( 'pico_edit_uploads_root' ));
+      if($uploads_root === false) error_log("Error: Wront `pico_edit_uploads_root` value.");
+      else
+      {
+        $attachments = $this->getDirContents($uploads_root);
+        $url_map = $this->getConfig('pico_edit_url_map');
+        // error_log(print_r($url_map,true)."\n",3,__DIR__.'\debug.log');
+        sort($attachments);
+        foreach($attachments as &$file){
+          $path_info = pathinfo($file);
+          $is_file = is_file($file);
+          $url_path = str_replace('\\','/',str_replace(realpath($this->getRootDir()), '', $file));
+          $url_path_md = str_replace(array_keys($url_map),array_values($url_map),$url_path);
+          $url_path_md = preg_replace('/^[\/\\\\]/','',$url_path_md);
+          // error_log(print_r($url_path,true)."\n",3,__DIR__.'\debug.log');
+          // error_log(print_r($url_path_md,true)."\n",3,__DIR__.'\debug.log');
+          $file = array(
+            'url' => str_replace('//','/',$this->getConfig('base_url').$url_path),
+            'url_relative' => $url_path,
+            'url_md' => $url_path_md,
+            'path' => preg_replace('/^[\/\\\\]/','',str_replace($uploads_root, '', $file)),
+            'file_name' => basename($file),
+            'is_file' => $is_file,
+            'mime' => $this->mimeByExtension($path_info['extension']),
+            'extension' => $path_info['extension'],
+          );
+        }
+        $twig_vars['attachments'] = $attachments;
+      }
+
+      $twig_vars['pages_tree'] = $this->getPagesTree($twig_vars['pages']);
+
+      // error_log(print_r($twig_vars['pages'],true)."\n",3,__DIR__.'\debug.log');
+      
+
       echo $twig_editor->render('editor.html', $twig_vars); // Render editor.html
       exit; // Don't continue to render template
     }
@@ -123,6 +157,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
   // public function onRequestFile( &$file ) { var_dump( $file ); }
 
   public function onRequestUrl( &$url ) {
+    // error_log(print_r($url,true)."\n",3,__DIR__.'\debug.log');
     // If the request is anything to do with pico_edit, then we start the PHP session
     if( substr( $url, 0, 9 ) == 'pico_edit' ) {
       if(function_exists('session_status')) {
@@ -135,6 +170,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
     }
     // Are we looking for /pico_edit?
     if( $url == 'pico_edit' ) $this->is_admin = true;
+    if( $url == 'pico_edit/attachments_upload' ) $this->do_attachments_upload();
     if( $url == 'pico_edit/clearcache' ) $this->do_clearcache();
     if( $url == 'pico_edit/commit' ) $this->do_commit();
     if( $url == 'pico_edit/delete' ) $this->do_delete();
@@ -566,6 +602,50 @@ final class Pico_Edit extends AbstractPicoPlugin {
     
   }
 
+  private function do_attachments_upload()
+  {
+    if(!isset($_SESSION['backend_logged_in']) || !$_SESSION['backend_logged_in']) die(json_encode(array('error' => 'Error: Unathorized')));
+
+    // error_log(print_r($_FILES,true)."\n",3,__DIR__.'\debug.log');
+
+    $result = [];
+
+    $uploads_root = realpath($this->getConfig( 'pico_edit_uploads_root' ));
+    if($uploads_root === false) die(json_encode(['error'=>'`pico_edit_uploads_root` does not exist']));
+
+    foreach($_FILES['file']['error'] as $key => $error)
+    {
+      if($error == UPLOAD_ERR_OK)
+      {
+        $path_info = pathinfo($_FILES['file']['name'][$key]);
+        $file_name = preg_replace('/[\s\\\\\/]/i','-',$path_info['filename']);
+        $file_path = $uploads_root.DIRECTORY_SEPARATOR.$file_name.'.'.$path_info['extension'];
+        if(file_exists($file_path))
+        {
+          for($i=1; file_exists($uploads_root.DIRECTORY_SEPARATOR.$file_name.'-'.$i.'.'.$path_info['extension']); $i++) ;
+          $file_name .= '-' . $i;
+        }
+        $file_path = $uploads_root.DIRECTORY_SEPARATOR.$file_name.'.'.$path_info['extension'];
+        // error_log(print_r($file_path,true)."\n",3,__DIR__.'\debug.log');
+        if(move_uploaded_file($_FILES['file']['tmp_name'][$key],$file_path) && file_exists($file_path))
+        {
+          $result []= ['fileName' => $file_name];
+        }
+        else
+        {
+          $result []= ['error' => "Failed to move uploaded file `{$_FILES['file']['name'][$key]}`"];
+        }
+      }
+      else
+      {
+        $result []= ['error'=>"Failed to upload `{$_FILES['file']['name'][$key]}`"];
+      }
+    }
+
+    die(json_encode($result));
+
+  }
+
   private function slugify( $text , $keep_path = false) {
     // replace non letter or digits by -
     if(!$keep_path)
@@ -603,7 +683,77 @@ final class Pico_Edit extends AbstractPicoPlugin {
         }
     }
     return $results;
-}
+  }
+
+  private function mimeByExtension($ext)
+  {
+    $type = null;
+    if(in_array($ext,[
+      'png',
+      'svg',
+      'jpg',
+      'jpeg',
+    ]))
+    {
+      $type = 'image';
+    }
+    else if(in_array($ext,[
+      'txt',
+      'md',
+      'pdf'
+    ]))
+    {
+      $type = 'text';
+    }
+    else if(in_array($ext,[
+      'xls',
+      'xlsx'
+    ]))
+    {
+      $type="excel";
+    }
+    else if(in_array($ext,[
+      'doc',
+      'docx'
+    ]))
+    {
+      $type="word";
+    }
+    else if(in_array($ext,[
+      'zip',
+      'tar',
+      'gz'
+    ]))
+    {
+      $type="archive";
+    }
+    return $type;
+  }
+
+  private function getPagesTree($pages)
+  {
+    function build_tree(&$node, $path_tail, &$pages, &$page_id)
+    {
+      if(sizeof($path_tail) == 0) return $node;
+      $path_name = array_shift($path_tail);
+      if(sizeof($path_tail) == 0)
+        $node[$path_name] = $pages[$page_id];
+      elseif(!isset($node[$path_name]))
+        $node[$path_name] = [];
+      return build_tree($node[$path_name], $path_tail, $pages, $page_id);
+    }
+    $tree = [];
+    $list = array_keys($pages);
+    sort($list);
+    // error_log(print_r($list,true)."\n",3,__DIR__.'\debug.log');
+    foreach($list as $page_id)
+    {
+      $path = preg_split('/[\/\\\\]/',$page_id);
+      build_tree($tree, $path, $pages, $page_id);
+    }
+    // error_log(print_r($tree,true)."\n",3,__DIR__.'\debug.log');
+    return $tree;
+  }
 
 }
 
