@@ -129,7 +129,8 @@ final class Pico_Edit extends AbstractPicoPlugin
   // public function on404ContentLoading( &$file ) { var_dump( $file ); }
   // public function onRequestFile( &$file ) { var_dump( $file ); }
 
-  public function onRequestUrl( &$url ) {
+  public function onRequestUrl( &$url )
+  {
     // error_log(print_r($url,true)."\n",3,__DIR__.'\debug.log');
     // If the request is anything to do with pico_edit, then we start the PHP session
     if( substr( $url, 0, 9 ) == 'pico_edit' ) {
