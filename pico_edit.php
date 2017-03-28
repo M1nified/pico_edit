@@ -739,6 +739,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
   private function mimeByExtension($ext)
   {
     $type = null;
+    $ext = strtolower($ext);
     if(in_array($ext,[
       'png',
       'svg',
