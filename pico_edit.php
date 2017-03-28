@@ -8,7 +8,8 @@
  * @version 0.2.2
  */
 
-final class Pico_Edit extends AbstractPicoPlugin {
+final class Pico_Edit extends AbstractPicoPlugin
+{
 
   protected $enabled = true;
   protected $dependsOn = array();
@@ -71,7 +72,8 @@ final class Pico_Edit extends AbstractPicoPlugin {
     }
   }
 
-  public function onConfigLoaded( array &$config ) {
+  public function onConfigLoaded( array &$config )
+  {
     // Default options
     if( !isset( $config['pico_edit_404'] ) ) $config['pico_edit_404'] = TRUE;
     if( !isset( $config['pico_edit_options'] ) ) $config['pico_edit_options'] = TRUE;
@@ -256,7 +258,8 @@ final class Pico_Edit extends AbstractPicoPlugin {
     ) ) );
   }
 
-  private function do_open() {
+  private function do_open()
+  {
     if( !isset( $_SESSION['backend_logged_in'] ) || !$_SESSION['backend_logged_in'] ) die( json_encode( array( 'error' => 'Error: Unathorized' ) ) );
     $file_url = isset( $_POST['file'] ) && $_POST['file'] ? $_POST['file'] : '';
     if( $file_url != 'conf' )
@@ -273,7 +276,8 @@ final class Pico_Edit extends AbstractPicoPlugin {
     }
   }
 
-  private function do_save() {
+  private function do_save()
+  {
     if( !isset( $_SESSION['backend_logged_in'] ) || !$_SESSION['backend_logged_in'] ) die( json_encode( array( 'error' => 'Error: Unathorized' ) ) );
     $file_url = isset( $_POST['file'] ) && $_POST['file'] ? $_POST['file'] : '';
     if( $file_url != 'conf' )
@@ -300,7 +304,8 @@ final class Pico_Edit extends AbstractPicoPlugin {
     }
   }
 
-  private function do_delete() {
+  private function do_delete()
+  {
     if( !isset( $_SESSION['backend_logged_in'] ) || !$_SESSION['backend_logged_in'] ) die( json_encode( array( 'error' => 'Error: Unathorized' ) ) );
     $file_url = isset( $_POST['file'] ) && $_POST['file'] ? $_POST['file'] : '';
     $file = $this->get_real_filename( $file_url );
