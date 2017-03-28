@@ -58,12 +58,14 @@
       <a href="#" class="pattern-apply btn marg-r5 icon-file-text" title="Apply"></a>
     </div>
     {% endif %}
-    <div class="attachments-filter">
-      <input type="search" placeholder="regex filter...">
-    </div>
-    <div class="attachments-list-container">
-      {% include 'templates/attachments-list.html' %}
-    </div>
+    {% if attachments %}
+      <div class="attachments-filter">
+        <input type="search" placeholder="regex filter...">
+      </div>
+      <div class="attachments-list-container">
+          {% include 'templates/attachments-list.html' %}
+      </div>
+    {% endif %}
   </div>
 
   <div id="main">

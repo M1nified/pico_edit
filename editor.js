@@ -110,8 +110,17 @@ $(function () {
 
   // Drop files to upload
   {
-    function updateView(){
-      
+    function updateView() {
+      let xhr = new XMLHttpRequest();
+      xhr.open('GET', '{{ pico_edit_url }}/get_attachments_html');
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          let container = document.querySelector(".attachments-list-container");
+          container.innerHTML = xhr.response;
+          filterAttachments(document.querySelector('#sidebar .attachments-filter input[type="search"]').value);
+        }
+      }
+      xhr.send();
     }
     function handleFileSelect(ev) {
       ev.stopPropagation();
@@ -122,30 +131,25 @@ $(function () {
       for (let i = 0, file; file = files[i]; i++) {
         let fileType = file.type;
         formData.append('file[' + i + ']', file, file.name);
-        // let fileReader = new FileReader();
-        // fileReader.onload = ((theFile) => {
-        //   return (ev) => {
-        //     // console.log(ev, theFile);
-        //     formData.set('file', ev.currentTarget.result, theFile.name);
-        //     // console.log(formData);
-        //   }
-        // })(file);
-        // fileReader.readAsDataURL(file);
       }
-      console.log(files)
-      console.log(formData)
+      // console.debug(files)
+      // console.debug(formData)
 
       var xhr = new XMLHttpRequest();
       xhr.open('POST', '{{ pico_edit_url }}/attachments_upload');
       xhr.onload = function () {
         if (xhr.status === 200) {
-          console.log('all done: ' + xhr.status, this);
+          // console.log('all done: ' + xhr.status, this);
           try {
-            let result = JSON.parse(xhr.status.response);
-
-          }catch(ex){}
+            let result = JSON.parse(xhr.response);
+            if (result.length) {
+              updateView();
+            }
+          } catch (ex) {
+            console.info('Upload failed');
+          }
         } else {
-          console.log('blarrghhhhh...');
+          console.info('Upload failed');
         }
       };
       xhr.send(formData);

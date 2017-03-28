@@ -60,36 +60,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
         }
       }
 
-      $uploads_root = realpath($_SERVER['DOCUMENT_ROOT'].$this->getConfig('base_dir').DIRECTORY_SEPARATOR.$this->getConfig( 'pico_edit_uploads_root' ));
-      // error_log(print_r($uploads_root,true)."\n",3,__DIR__.'\debug.log');
-      if($uploads_root === false) error_log("Error: Wront `pico_edit_uploads_root` value.");
-      else
-      {
-        $attachments = $this->getDirContents($uploads_root);
-        $url_map = $this->getConfig('pico_edit_url_map');
-        // error_log(print_r($url_map,true)."\n",3,__DIR__.'\debug.log');
-        sort($attachments);
-        foreach($attachments as &$file){
-          $path_info = pathinfo($file);
-          $is_file = is_file($file);
-          $url_path = str_replace('\\','/',str_replace(realpath($this->getRootDir()), '', $file));
-          $url_path_md = str_replace(array_keys($url_map),array_values($url_map),$url_path);
-          $url_path_md = preg_replace('/^[\/\\\\]/','',$url_path_md);
-          // error_log(print_r($url_path,true)."\n",3,__DIR__.'\debug.log');
-          // error_log(print_r($url_path_md,true)."\n",3,__DIR__.'\debug.log');
-          $file = array(
-            'url' => str_replace('//','/',$this->getConfig('base_url').$url_path),
-            'url_relative' => $url_path,
-            'url_md' => $url_path_md,
-            'path' => preg_replace('/^[\/\\\\]/','',str_replace($uploads_root, '', $file)),
-            'file_name' => basename($file),
-            'is_file' => $is_file,
-            'mime' => $this->mimeByExtension($path_info['extension']),
-            'extension' => $path_info['extension'],
-          );
-        }
-        $twig_vars['attachments'] = $attachments;
-      }
+      $twig_vars['attachments'] = $this->get_attachments();
 
       $twig_vars['pages_tree'] = $this->getPagesTree($twig_vars['pages']);
 
@@ -177,6 +148,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
     if( $url == 'pico_edit/clearcache' ) $this->do_clearcache();
     if( $url == 'pico_edit/commit' ) $this->do_commit();
     if( $url == 'pico_edit/delete' ) $this->do_delete();
+    if( $url == 'pico_edit/get_attachments_html' ) $this->do_get_attachments_html();
     if( $url == 'pico_edit/get_file_manager' ) $this->do_get_file_manager();
     if( $url == 'pico_edit/git' ) $this->do_git();
     if( $url == 'pico_edit/logout' ) $this->is_logout = true;
@@ -649,10 +621,11 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
   }
 
-  private function do_get_attachments_list()
+
+  private function do_get_attachments_html()
   {
     // TODO get files
-    $attachments = null;
+    $attachments = $this->get_attachments();
     # And do output...
     $loader = new Twig_Loader_Filesystem('./plugins/pico_edit');
     $twig = new Twig_Environment($loader, array('cache' => null));
@@ -662,6 +635,44 @@ final class Pico_Edit extends AbstractPicoPlugin {
     );
     $content = $twig->render('templates/attachments-list.html', $twig_vars);
     die($content);
+  }
+
+  private function get_attachments()
+  {
+    $uploads_root = realpath($_SERVER['DOCUMENT_ROOT'].$this->getConfig('base_dir').DIRECTORY_SEPARATOR.$this->getConfig( 'pico_edit_uploads_root' ));
+    // error_log(print_r($uploads_root,true)."\n",3,__DIR__.'\debug.log');
+    if($uploads_root === false)
+    {
+      error_log("Error: Wrong `pico_edit_uploads_root` value.");
+      return null;
+    }
+    else
+    {
+      $attachments = $this->getDirContents($uploads_root);
+      $url_map = $this->getConfig('pico_edit_url_map');
+      // error_log(print_r($url_map,true)."\n",3,__DIR__.'\debug.log');
+      sort($attachments);
+      foreach($attachments as &$file){
+        $path_info = pathinfo($file);
+        $is_file = is_file($file);
+        $url_path = str_replace('\\','/',str_replace(realpath($this->getRootDir()), '', $file));
+        $url_path_md = str_replace(array_keys($url_map),array_values($url_map),$url_path);
+        $url_path_md = preg_replace('/^[\/\\\\]/','',$url_path_md);
+        // error_log(print_r($url_path,true)."\n",3,__DIR__.'\debug.log');
+        // error_log(print_r($url_path_md,true)."\n",3,__DIR__.'\debug.log');
+        $file = array(
+          'url' => str_replace('//','/',$this->getConfig('base_url').$url_path),
+          'url_relative' => $url_path,
+          'url_md' => $url_path_md,
+          'path' => preg_replace('/^[\/\\\\]/','',str_replace($uploads_root, '', $file)),
+          'file_name' => basename($file),
+          'is_file' => $is_file,
+          'mime' => $this->mimeByExtension($path_info['extension']),
+          'extension' => $path_info['extension'],
+        );
+      }
+      return $attachments;
+    }
   }
 
   private function slugify( $text , $keep_path = false) {
