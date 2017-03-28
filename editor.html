@@ -47,6 +47,17 @@
       {{ tree.pages(pages_tree) }}
 
     </ul>
+    {% if pattern_count > 0 %}
+    <div class="pattern-picker">
+      <select class="" id="pattern-select" required>
+          <option value="">Pick a template</option>
+          {% for page in pages if page.meta.ispattern %}
+            <option value="{{page.id}}">{{page.title}}</option>
+          {% endfor %}
+      </select>
+      <a href="#" class="pattern-apply btn marg-r5 icon-file-text" title="Apply"></a>
+    </div>
+    {% endif %}
     <div class="attachments-filter">
       <input type="search" placeholder="regex filter...">
     </div>

@@ -101,6 +101,18 @@
     });
   });
 
+  // Apply pattern
+  $('.pattern-apply').on('click', function (e) {
+    e.preventDefault();
+    if (unsaved && !confirm('You have unsaved changes. Are you sure you want to leave this post?')) return false;
+    var fileUrl = $('#pattern-select').val();
+    if(!fileUrl) return;
+    $.post('{{ pico_edit_url }}/open', { file: fileUrl }, function (data) {
+      simplemde.value(data)
+      unsaved = false;
+    });
+  });
+
 </script>
 
 <style>

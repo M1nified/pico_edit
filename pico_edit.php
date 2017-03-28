@@ -93,6 +93,8 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
       $twig_vars['pages_tree'] = $this->getPagesTree($twig_vars['pages']);
 
+      $twig_vars['pattern_count'] = $this->count_patterns($twig_vars['pages']);
+
       // error_log(print_r($twig_vars['pages'],true)."\n",3,__DIR__.'\debug.log');
       
 
@@ -754,6 +756,16 @@ final class Pico_Edit extends AbstractPicoPlugin {
     }
     // error_log(print_r($tree,true)."\n",3,__DIR__.'\debug.log');
     return $tree;
+  }
+
+  private function count_patterns($pages)
+  {
+    $count = 0;
+    foreach($pages as $page)
+    {
+      $count += $page['meta']['ispattern'];
+    }
+    return $count;
   }
 
 }
