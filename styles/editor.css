@@ -251,8 +251,9 @@ a:hover, a:active {
   color: #21272d; 
   font-weight: bold;
 }
-#sidebar li .view,
-#sidebar li .delete {
+#sidebar li .copy,
+#sidebar li .delete,
+#sidebar li .view {
   position: absolute;
   top: 0;
   right: 0;
@@ -267,10 +268,12 @@ a:hover, a:active {
   opacity: 0;
   background: #f9fbfc;
 }
-#sidebar li .view { right: 25px; }
+#sidebar li .copy { right: 50px; }
 #sidebar li .delete { padding-right: 5px; }
-#sidebar li:hover .view,
-#sidebar li:hover .delete { opacity: 1; }
+#sidebar li .view { right: 25px; }
+#sidebar li:hover .copy,
+#sidebar li:hover .delete,
+#sidebar li:hover .view{ opacity: 1; }
 
 #main {
   position: absolute;
@@ -540,6 +543,12 @@ a:hover, a:active {
 }
 .icon-shrink2:before{
   content: "\e98c";
+}
+.icon-copy:before{
+  content: "\e92c";
+}
+.icon-paste:before{
+  content: "\e92d";
 }
 
 .marg-r5 {

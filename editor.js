@@ -134,8 +134,32 @@ $(function () {
   $('#sidebar .attachments-filter input[type="search"]').on('change keyup', function (e) {
     filterAttachments(this.value);
   });
+  // Attachment copy
+  $('.attachments-list-container').on('click', 'a.copy', function (e) {
+    if (!document.queryCommandSupported('copy')) {
+      console.warn('Copy is not supported.')
+      return;
+    }
+    let fileUrl = $(this).data('atta-path');
+    let div = document.createElement('div');
+    div.style.width = '1px'; div.style.height = '1px'; div.style.overflow = 'hidden';
+    div.appendChild(document.createTextNode(fileUrl))
+    document.body.appendChild(div);
+    let range = document.createRange(); range.selectNodeContents(div);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    if (!document.execCommand('copy'))
+      console.warn('Copy command failed.');
+    else {
+      $('#saving').text('Coppied').addClass('active');
+      setTimeout(function () {
+        $('#saving').removeClass('active');
+      }, 1000);
+    }
+    document.body.removeChild(div);
+  });
   // Attachment delete
-  $('#sidebar .attachments-list a.delete').on('click', function (e) {
+  $('.attachments-list-container').on('click', 'a.delete', function (e) {
     console.warn("Delete needs to be implemented.");
   });
 
@@ -195,16 +219,15 @@ $(function () {
   })
 
   // Edit hashed file
-  // TODO add epiceditor
-  try {
-    let id = window.location.hash.replace('#', '');
-    !id && (id = 'index');
-    let elem = document.querySelector('a[data-url="' + id + '"]');
-    elem.click();
-    treeLeafExpand(elem);
-  } catch (ex) { };
-
-  // Open index on load
+  {
+    try {
+      let id = window.location.hash.replace('#', '');
+      !id && (id = 'index');
+      let elem = document.querySelector('a[data-url="' + id + '"]');
+      elem.click();
+      treeLeafExpand(elem);
+    } catch (ex) { };
+  }
 
   // Drop files to upload
   {
