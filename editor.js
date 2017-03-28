@@ -110,6 +110,9 @@ $(function () {
 
   // Drop files to upload
   {
+    function updateView(){
+      
+    }
     function handleFileSelect(ev) {
       ev.stopPropagation();
       ev.preventDefault();
@@ -137,6 +140,10 @@ $(function () {
       xhr.onload = function () {
         if (xhr.status === 200) {
           console.log('all done: ' + xhr.status, this);
+          try {
+            let result = JSON.parse(xhr.status.response);
+
+          }catch(ex){}
         } else {
           console.log('blarrghhhhh...');
         }
@@ -148,7 +155,7 @@ $(function () {
       ev.preventDefault();
       ev.dataTransfer.dropEffect = 'copy';
     }
-    var dropZone = document.querySelector('.attachments-list');
+    var dropZone = document.querySelector('.attachments-list-container');
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('drop', handleFileSelect, false);
   }

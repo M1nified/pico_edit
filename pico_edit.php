@@ -649,6 +649,21 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
   }
 
+  private function do_get_attachments_list()
+  {
+    // TODO get files
+    $attachments = null;
+    # And do output...
+    $loader = new Twig_Loader_Filesystem('./plugins/pico_edit');
+    $twig = new Twig_Environment($loader, array('cache' => null));
+    $twig->addExtension(new Twig_Extension_Debug());
+    $twig_vars = array(
+      'attachments' => $attachments,
+    );
+    $content = $twig->render('templates/attachments-list.html', $twig_vars);
+    die($content);
+  }
+
   private function slugify( $text , $keep_path = false) {
     // replace non letter or digits by -
     if(!$keep_path)

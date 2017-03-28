@@ -1,0 +1,24 @@
+<ul class="attachments-list">
+{% for file in attachments if file.is_file %}
+    <li data-filter-by="{{file.path}}"><a href="{{file.url_md}}" title="{{file.path}}" target="_blank" data-atta-mime="{{file.mime}}" data-atta-name="{{file.path}}">
+    {% if file.mime == 'image' %}
+        <span class="icon-file-picture marg-r5" aria-hidden="true"></span>
+    {% elseif file.mime == 'text' %}
+        <span class="icon-file-text2 marg-r5" aria-hidden="true"></span>
+    {% elseif file.mime == 'word' %}
+        <span class="icon-file-word marg-r5" aria-hidden="true"></span>
+    {% elseif file.mime == 'excel' %}
+        <span class="icon-file-excel marg-r5" aria-hidden="true"></span>
+    {% elseif file.mime == 'archive' %}
+        <span class="icon-file-zip marg-r5" aria-hidden="true"></span>
+    {% else %}
+        <span class="icon-file-empty marg-r5" aria-hidden="true"></span>
+    {% endif %}
+
+    {{ file.file_name }}
+    </a>
+    <a href="{{ file.url_md }}" target="_blank" class="view" title="View"><span class="icon icon-eye" aria-hidden="true"></span></a>
+    <a href="#" data-atta-path="{{ file.path }}" class="delete" title="Delete"><span class="icon icon-bin" aria-hidden="true"></span></a></li>
+    </li>
+{% endfor %}
+</ul>
