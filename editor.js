@@ -161,7 +161,30 @@ $(function () {
   });
   // Attachment delete
   $('.attachments-list-container').on('click', 'a.delete', function (e) {
-    console.warn("Delete needs to be implemented.");
+    e.preventDefault();
+    let file = this.dataset.attaUrl;
+    let formData = new FormData();
+    formData.append('file', file);
+
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', '{{ pico_edit_url }}/attachment_delete');
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        try {
+          let result = JSON.parse(xhr.response);
+          if (result.success) {
+            updateAttachmentView();
+          } else {
+            console.info(result.error);
+          }
+        } catch (ex) {
+          console.info('Delete failed');
+        }
+      } else {
+        console.info('Delete failed');
+      }
+    };
+    xhr.send(formData);
   });
 
   // Collapsible tree
@@ -232,7 +255,7 @@ $(function () {
 
   // Drop files to upload
   {
-    function updateView() {
+    function updateAttachmentView() {
       let xhr = new XMLHttpRequest();
       xhr.open('GET', '{{ pico_edit_url }}/get_attachments_html');
       xhr.onload = () => {
@@ -265,7 +288,7 @@ $(function () {
           try {
             let result = JSON.parse(xhr.response);
             if (result.length) {
-              updateView();
+              updateAttachmentView();
             }
           } catch (ex) {
             console.info('Upload failed');

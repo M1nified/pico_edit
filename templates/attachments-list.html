@@ -19,7 +19,7 @@
     </a>
     <a href="#" data-atta-path="{{ file.path }}" class="copy" title="Copy"><span class="icon icon-copy" aria-hidden="true"></span></a>
     <a href="{{ file.url_md }}" target="_blank" class="view" title="View"><span class="icon icon-eye" aria-hidden="true"></span></a>
-    <a href="#" data-atta-path="{{ file.path }}" class="delete" title="Delete"><span class="icon icon-bin" aria-hidden="true"></span></a>
+    <a href="#" data-atta-url="{{ file.url_md }}" data-atta-path="{{ file.path }}" class="delete" title="Delete"><span class="icon icon-bin" aria-hidden="true"></span></a>
     </li>
 {% endfor %}
 </ul>

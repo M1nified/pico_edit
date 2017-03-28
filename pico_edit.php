@@ -141,6 +141,7 @@ final class Pico_Edit extends AbstractPicoPlugin {
     }
     // Are we looking for /pico_edit?
     if( $url == 'pico_edit' ) $this->is_admin = true;
+    if( $url == 'pico_edit/attachment_delete' ) $this->do_attachment_delete();
     if( $url == 'pico_edit/attachments_upload' ) $this->do_attachments_upload();
     if( $url == 'pico_edit/clearcache' ) $this->do_clearcache();
     if( $url == 'pico_edit/commit' ) $this->do_commit();
@@ -161,8 +162,15 @@ final class Pico_Edit extends AbstractPicoPlugin {
    * @param string $file_url the file URL to be edited
    * @return string
    */
-  private function get_real_filename( $file_url ) {
+  private function get_real_filename( $file_url )
+  {
     $path = $this->getConfig( 'content_dir' ) . $file_url . $this->getConfig( 'content_ext' );
+    return realpath( $path );
+  }
+
+  private function get_real_attachment_filename( $file_url )
+  {
+    $path = $this->getConfig( 'base_dir' ) . $file_url;
     return realpath( $path );
   }
 
@@ -616,6 +624,24 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
     die(json_encode($result));
 
+  }
+
+  private function do_attachment_delete()
+  {
+    if(!isset($_SESSION['backend_logged_in']) || !$_SESSION['backend_logged_in']) die(json_encode(array('error' => 'Error: Unathorized')));
+    $file_url = isset( $_POST['file'] ) && $_POST['file'] ? $_POST['file'] : '';
+    $file = $this->get_real_attachment_filename($file_url);
+    if(file_exists($file) && ($result = unlink($file)))
+    {
+      die(json_encode(array('success'=>'File removed.')));
+    }
+    else
+    {
+      if(isset($result))
+        die(json_encode(array('error'=>'Error: Failed to delete file. File exists, but unlink() failed.')));
+      else
+        die(json_encode(array('error'=>"Error: Failed to delete file. File `{$file}` does not exist.")));
+    }
   }
 
   private function do_get_attachments_html()
