@@ -41,8 +41,6 @@ final class Pico_Edit extends AbstractPicoPlugin {
         exit;
       }
 
-      
-
       if( !isset($_SESSION['backend_logged_in'] ) || !$_SESSION['backend_logged_in'] ) {
         if( isset($_POST['password'] ) ) {
           if( $this->getConfig('pico_edit_no_password') === TRUE || sha1($_POST['password'] ) == $this->password ) {
@@ -68,7 +66,6 @@ final class Pico_Edit extends AbstractPicoPlugin {
 
       // error_log(print_r($twig_vars['pages'],true)."\n",3,__DIR__.'\debug.log');
       
-
       echo $twig_editor->render('editor.html', $twig_vars); // Render editor.html
       exit; // Don't continue to render template
     }
@@ -620,7 +617,6 @@ final class Pico_Edit extends AbstractPicoPlugin {
     die(json_encode($result));
 
   }
-
 
   private function do_get_attachments_html()
   {

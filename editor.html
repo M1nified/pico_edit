@@ -50,7 +50,7 @@
     {% if pattern_count > 0 %}
     <div class="pattern-picker">
       <select class="" id="pattern-select" required>
-          <option value="">Pick a template</option>
+          <option value="">Pick a pattern</option>
           {% for page in pages if page.meta.ispattern %}
             <option value="{{page.id}}">{{page.title}}</option>
           {% endfor %}

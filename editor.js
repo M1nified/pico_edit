@@ -40,6 +40,7 @@ $(function () {
     $.post('{{ pico_edit_url }}/open', { file: fileUrl }, function (data) {
       PicoEditEditor.onOpenPost && PicoEditEditor.onOpenPost(fileUrl, data);
       unsaved = false;
+      currentFile = fileUrl;
       document.title = document.title.replace(' *', '');
     });
   }
@@ -118,7 +119,13 @@ $(function () {
     var fileUrl = $('#pattern-select').val();
     if (!fileUrl) return;
     $.post('{{ pico_edit_url }}/open', { file: fileUrl }, function (data) {
-      PicoEditEditor.value(data)
+      let currentValue = PicoEditEditor.value();
+      let titleRow = currentValue.match(/title\s*.*/i);
+      titleRow = (titleRow && titleRow[0] || '');
+      let dateRow = currentValue.match(/date\s*.*/i);
+      dateRow = (dateRow && dateRow[0] || '');
+      let content = data.replace(/ispattern:\s*true\s*/i, '').replace(/title\s*.*/i, titleRow).replace(/date\s.*/i, dateRow);
+      PicoEditEditor.value(content)
       unsaved = false;
     });
   });
