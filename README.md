@@ -10,7 +10,7 @@ Install
 2. Open the Pico config.php file and insert your sha1 hashed password
 3. Visit http://www.yoursite.com/pico_edit and login
 
-If pages editing doesn't work check file/dir permissions of 'content' folder.
+If pages editing doesn't work check `file/dir` permissions of `content` folder.
 
 About
 -----
@@ -23,22 +23,32 @@ Features:
 
 * Page create/edit/delete
 
+* Two editors available
+
 * Markdown preview (top right icon in the editor)
+
+* Drag-n-drop attachments
+
+* Page patterns available on click
 
 * Edit 404 page (aka "page not found")
 
 * Edit Pico options
 
-Options (Pico "config/config.php"):
+* Link to page edition
 
-	$config['pico_edit_404'] = true;
-	$config['pico_edit_options'] = false;					// Disallow options editing
-	$config['pico_edit_default_author'] = 'Me';		// Default author for new pages
-	$config['pico_edit_no_password'] = false;			// Enable/Disable no password login
-	$config['pico_edit_editor'] = 'epiceditor';		// Editor
-	$config['pico_edit_uploads_root'] = 'content/attachments';	// File manager root directory
+Options (Pico `config/config.php`):
 
-![Screenshot](https://github.com/blocknotes/pico_edit/blob/master/screenshot.png)
+```php
+$config['pico_edit_404'] = true;                   // Allow 404 editing
+$config['pico_edit_options'] = false;              // Disallow options editing
+$config['pico_edit_default_author'] = 'Me';        // Default author for new pages
+$config['pico_edit_no_password'] = false;          // Enable/Disable no password login
+$config['pico_edit_editor'] = 'epiceditor';        // Editor
+$config['pico_edit_uploads_root'] = 'attachments'; // File manager root directory
+```
+
+![Screenshot](screenshot.png)
 
 Editing Pico options
 --------------------
@@ -55,6 +65,64 @@ Git functions
 The general use-case is for one or more content editors to have a Git repo cloned onto their laptops. They can then go ahead and create or edit content, saving it to their local machine as required. When they're happy, they can commit to their local Git repo. How they publish the content is up to the administrator, but one method is to have a post-update hook on the Git server that publishes the content into the DocumentRoot of the webserver(s). Obviously, editors can Git-pull the changes other editors have made to their local machines so that they stay up to date. Depending on how you set things up, it's possible editors could even edit pages directly on the public website (and commit those to the Git repo from there).
 
 Git features are only shown in the editor UI if the server has a Git binary available, and the content is in a Git repo. Push/pull functions are only available if the repo has one or more remote servers configured into it.
+
+Editors
+-------
+
+You can pick a default editor by setting `pico_edit_editor` option. Available values are:
+
+* `epiceditor` which is a default value
+* `SimpleMDE` [Read more about SimpleMDE](https://simplemde.com/)
+
+Edit file from hash
+-------------------
+
+Go to `/pico_edit#dir/file` to automatically open file `dir/file` for edition. This allows you to create links for faster editing in your custom template. See an example template implementation below.
+
+```html
+<footer>
+  <a href="{{ base_url }}/pico_edit#{{ current_page.id }}">Edit this page</a>
+</footer>
+```
+
+Attachments
+-----------
+
+Files can be uploaded by dropping them below `Attachments filter`. All files are stored in directory defined in `config.php` as `pico_edit_uploads_root` and its default value equals working content directory.
+
+Proper setup requires dedicated directory inside content dir and link to this location under the same name inside the root directory.
+
+Structure:
+```
+picocms/content/attachments
+picocms/attachments --> content/attachments
+```
+
+And required row in config.php
+```php
+$config['pico_edit_uploads_root'] = 'attachments';
+```
+
+Patterns
+--------
+
+Patterns makes it easier to create similar pages in the same manner, which is crucial while working in a group of editors. To create a pattern simply add new post and set meta value `IsPattern` to `true`. See example below.
+
+```markdown
+/*
+Title: Simple Pattern
+Author: Johny
+Date: 28 March 2017
+IsPattern: true
+*/
+
+# Fruit name
+Width:
+Height:
+Weight:
+```
+
+To use a pattern create/open file to apply the pattern to, pick desired template and click `Apply`. The content of the pattern will overwrite the content of editor. However, `IsPattern` meta field will be omited, also `Title` and `Date` fields won't change.
 
 History
 -------
