@@ -1,4 +1,80 @@
+var unsaved = false;
+var currentFile = null;
 $(function () {
+
+  // New
+  $('.controls .new').on('click', function (e) {
+    e.preventDefault();
+    var title = prompt('Enter page title; optionally with path, example: sub folder/my page', '');
+    if (title != null && title != '') {
+      $.post('{{ pico_edit_url }}/new', { title: title }, function (data) {
+        console.log(data)
+        if (data.error) {
+          alert(data.error);
+        }
+        else {
+          $('.nav .post').removeClass('open');
+          currentFile = data.file;
+          PicoEditEditor.onNewPost && PicoEditEditor.onNewPost(data.file, data);
+          unsaved = false;
+          document.title = document.title.replace(' *', '');
+          $('.nav').prepend('<li><a href="#" data-url="' + data.file + '" class="post open"><span class="icon-file-text2 marg-r5" aria-hidden="true"></span>/' + data.file + '</a><a href="' + data.url + '" target="_blank" class="view" title="View"><span class="icon icon-eye marg-r5" aria-hidden="true"></span></a><a href="#" data-url="' + data.file + '" class="delete" title="Delete"><span class="icon icon-bin marg-r5" aria-hidden="true"></span></a></li>')
+        }
+      }, 'json');
+    }
+  });
+
+  // Open post
+  $('.nav,.nav0').on('click', '.post', function (e) {
+    e.preventDefault();
+    if (unsaved && !confirm('You have unsaved changes. Are you sure you want to leave this post?')) return false;
+    $('.nav .post,.nav0 .post').removeClass('open');
+    $(this).addClass('open');
+
+    var fileUrl = $(this).attr('data-url');
+    window.location.href = '#' + fileUrl;
+    openPost(fileUrl);
+  });
+
+  let openPost = fileUrl => {
+    $.post('{{ pico_edit_url }}/open', { file: fileUrl }, function (data) {
+      PicoEditEditor.onOpenPost && PicoEditEditor.onOpenPost(fileUrl, data);
+      unsaved = false;
+      document.title = document.title.replace(' *', '');
+    });
+  }
+
+  // btn - Delete
+  $('.nav').on('click', '.delete', function (e) {
+    e.preventDefault();
+    if (!confirm('Are you sure you want to delete this file?')) return false;
+    $('.nav .post').removeClass('open');
+
+    var li = $(this).parents('li');
+    var fileUrl = $(this).attr('data-url');
+    $.post('{{ pico_edit_url }}/delete', { file: fileUrl }, function (data) {
+      li.remove();
+      PicoEditEditor.onDeletePost(fileUrl, data);
+      unsaved = false;
+      document.title = document.title.replace(' *', '');
+      document.location.hash = '';
+    });
+  });
+
+  // btn - Save
+  $('.controls').on('click', '.savebutton', function (e) {
+    e.preventDefault();
+    $('#saving').text('Saving...').addClass('active');
+    $.post('{{ pico_edit_url }}/save', { file: currentFile, content: PicoEditEditor.value() }, function (data) {
+      $('#saving').text('Saved');
+      unsaved = false;
+      document.title = document.title.replace(' *', '');
+      setTimeout(function () {
+        $('#saving').removeClass('active');
+      }, 1000);
+    });
+  });
+
   // btn - Clear cache
   $('.controls').on('click', '.clearcachebutton', function (e) {
     e.preventDefault();
@@ -33,6 +109,18 @@ $(function () {
   $('#cover').on('click', function (e) {
     e.preventDefault();
     close_popup();
+  });
+
+  // btn - Apply pattern
+  $('.pattern-apply').on('click', function (e) {
+    e.preventDefault();
+    if (unsaved && !confirm('You have unsaved changes. Are you sure you want to leave this post?')) return false;
+    var fileUrl = $('#pattern-select').val();
+    if (!fileUrl) return;
+    $.post('{{ pico_edit_url }}/open', { file: fileUrl }, function (data) {
+      PicoEditEditor.value(data)
+      unsaved = false;
+    });
   });
 
   // Attachments filter
@@ -103,10 +191,13 @@ $(function () {
   // TODO add epiceditor
   try {
     let id = window.location.hash.replace('#', '');
+    !id && (id = 'index');
     let elem = document.querySelector('a[data-url="' + id + '"]');
     elem.click();
     treeLeafExpand(elem);
   } catch (ex) { };
+
+  // Open index on load
 
   // Drop files to upload
   {
