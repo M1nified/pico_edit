@@ -10,7 +10,7 @@ Install
 2. Open the Pico config.php file and insert your sha1 hashed password
 3. Visit http://www.yoursite.com/pico_edit and login
 
-If pages editing doesn't work check `file/dir` permissions of `content` folder.
+If pages editing doesn't work check file/dir permissions of `content` folder.
 
 About
 -----
