@@ -136,6 +136,7 @@ $(function () {
   });
   // Attachment copy
   $('.attachments-list-container').on('click', 'a.copy', function (e) {
+    e.preventDefault();
     if (!document.queryCommandSupported('copy')) {
       console.warn('Copy is not supported.')
       return;
