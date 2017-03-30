@@ -20,32 +20,27 @@ Pico Edit provides a back-end interface to edit Pico pages. Additionally, it has
 Features:
 
 * Simple and clean interface
-
 * Page create/edit/delete
-
 * Two editors available
-
 * Markdown preview (top right icon in the editor)
-
 * Drag-n-drop attachments
-
 * Page patterns available on click
-
 * Edit 404 page (aka "page not found")
-
 * Edit Pico options
-
 * Link to page edition
 
 Options (Pico `config/config.php`):
 
 ```php
-$config['pico_edit_404'] = true;                   // Allow 404 editing
-$config['pico_edit_options'] = false;              // Disallow options editing
-$config['pico_edit_default_author'] = 'Me';        // Default author for new pages
-$config['pico_edit_no_password'] = false;          // Enable/Disable no password login
-$config['pico_edit_editor'] = 'epiceditor';        // Editor
-$config['pico_edit_uploads_root'] = 'attachments'; // File manager root directory
+$config['pico_edit_404'] = true;             // Allow 404 editing
+$config['pico_edit_options'] = false;        // Disallow options editing
+$config['pico_edit_default_author'] = 'Me';  // Default author for new pages
+$config['pico_edit_no_password'] = false;    // Enable/Disable no password login
+$config['pico_edit_editor'] = 'epiceditor';  // Editor (epiceditor or SimpleMDE)
+$config['pico_edit_uploads_root'] = 'content/attachments';
+       // File manager root directory (example value)
+$config['pico_edit_url_map'] = array('content/attachments' => 'attachments');
+       // Map attachment url, so it is relative to content directory (example value)
 ```
 
 ![Screenshot](screenshot.png)
@@ -94,8 +89,8 @@ Proper setup requires dedicated directory inside content dir and link to this lo
 
 Structure:
 ```
-picocms/content/attachments
-picocms/attachments --> content/attachments
+/picocms/content/attachments
+/picocms/attachments -- links to --> /picocms/content/attachments
 ```
 
 And required row in config.php
@@ -123,6 +118,8 @@ Weight:
 ```
 
 To use a pattern create/open file to apply the pattern to, pick desired template and click `Apply`. The content of the pattern will overwrite the content of editor. However, `IsPattern` meta field will be omited, also `Title` and `Date` fields won't change.
+
+**It is required to refresh (F5) editor after adding a new pattern file.**
 
 History
 -------
