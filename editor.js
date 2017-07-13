@@ -65,15 +65,7 @@ $(function () {
   // btn - Save
   $('.controls').on('click', '.savebutton', function (e) {
     e.preventDefault();
-    $('#saving').text('Saving...').addClass('active');
-    $.post('{{ pico_edit_url }}/save', { file: currentFile, content: PicoEditEditor.value() }, function (data) {
-      $('#saving').text('Saved');
-      unsaved = false;
-      document.title = document.title.replace(' *', '');
-      setTimeout(function () {
-        $('#saving').removeClass('active');
-      }, 1000);
-    });
+    save();
   });
 
   // btn - Clear cache
@@ -129,6 +121,35 @@ $(function () {
       unsaved = false;
     });
   });
+
+  // shortcuts
+  $(window).on('keydown', function (e) {
+    var keyCode = e.which || e.keyCode
+    switch (keyCode) {
+      case 83: // s
+        if (e.ctrlKey) {
+          e.preventDefault();
+          save();
+        }
+        break;
+
+      default:
+        break;
+    }
+  })
+
+  // Actions
+  function save() {
+    $('#saving').text('Saving...').addClass('active');
+    $.post('{{ pico_edit_url }}/save', { file: currentFile, content: PicoEditEditor.value() }, function (data) {
+      $('#saving').text('Saved');
+      unsaved = false;
+      document.title = document.title.replace(' *', '');
+      setTimeout(function () {
+        $('#saving').removeClass('active');
+      }, 1000);
+    });
+  }
 
   // Attachments filter
   $('#sidebar .attachments-filter input[type="search"]').on('change keyup', function (e) {

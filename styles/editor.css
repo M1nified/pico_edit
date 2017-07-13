@@ -53,7 +53,7 @@ label, input[type=button], input[type=submit], button {
   cursor: pointer;
 }
 
-/* make buttons play nice in IE:   
+/* make buttons play nice in IE:
     www.viget.com/inspire/styling-the-button-element-in-internet-explorer/ */
 button {
   width: auto;
@@ -67,8 +67,8 @@ img {
 
 /* Input Styles
 /*---------------------------------------------*/
-input, 
-textarea, 
+input,
+textarea,
 select {
   font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #55606E;
@@ -125,7 +125,7 @@ a:hover, a:active {
 }
 
 .btn {
-  display: inline-block; 
+  display: inline-block;
   line-height: 20px;
   padding: 5px;
   text-shadow: #FFF 0 1px 0;
@@ -178,12 +178,12 @@ a:hover, a:active {
      -moz-box-shadow: 0px 1px 1px rgba(0,0,0,0.07);
           box-shadow: 0px 1px 1px rgba(0,0,0,0.07);
 }
-#sidebar .logout { 
-  float: left; 
+#sidebar .logout {
+  float: left;
   margin-top: 5px;
 }
-#sidebar .controls .new, .commitbutton, .savebutton, .filebutton, .pushpullbutton, .clearcachebutton { 
-  float: right; 
+#sidebar .controls .new, .commitbutton, .savebutton, .filebutton, .pushpullbutton, .clearcachebutton {
+  float: right;
   margin-top: 5px;
 }
 #sidebar .nav0 {
@@ -227,9 +227,9 @@ a:hover, a:active {
 #sidebar .page-options span {
   color: #060;
 }
-#sidebar li { 
+#sidebar li {
   line-height: 25px;
-  position: relative; 
+  position: relative;
   border-bottom: 1px dotted #DCE0E3;
 }
 #sidebar li a {
@@ -237,7 +237,7 @@ a:hover, a:active {
   padding: 0 10px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 #sidebar li a.post {
   -webkit-transition: color 0.2s linear;
@@ -248,7 +248,7 @@ a:hover, a:active {
 }
 #sidebar li:hover a.post { padding-right: 55px; }
 #sidebar li a.open {
-  color: #21272d; 
+  color: #21272d;
   font-weight: bold;
 }
 #sidebar li .copy,
