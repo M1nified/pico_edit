@@ -127,7 +127,7 @@ $(function () {
     var keyCode = e.which || e.keyCode
     switch (keyCode) {
       case 83: // s
-        if (e.ctrlKey) {
+        if (e.ctrlKey && !e.altKey) {
           e.preventDefault();
           save();
         }
